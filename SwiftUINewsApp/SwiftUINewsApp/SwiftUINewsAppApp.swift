@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct SwiftUINewsAppApp: App {
     let persistenceController = PersistenceController.shared
-
+    let sample = News.sampleDatas
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            NavigationStack{
+                NewsListView()
+            }
+                
         }
     }
 }
