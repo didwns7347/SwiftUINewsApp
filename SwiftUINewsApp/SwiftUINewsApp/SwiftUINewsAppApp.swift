@@ -14,7 +14,8 @@ struct SwiftUINewsAppApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack{
-                NewsListView()
+//                RepositoriesListContainer(viewModel: RepositoriesViewModel())
+                NewsListView(newsListViewModel: NewsListViewModel())
             }
                 
         }

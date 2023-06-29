@@ -6,14 +6,11 @@
 //
 
 import Foundation
-
 class NewsListViewModel : ObservableObject {
-    @Published var newsList : [News] = []
+    @Published var newsList : [NewsItem] = []
     var pageSize = 10
     var currentPage = 1
-    var start : Int {
-        pageSize * (currentPage-1) + 1
-    }
+    
     private var selectedKeyword : String
     
     
@@ -21,35 +18,34 @@ class NewsListViewModel : ObservableObject {
         self.selectedKeyword = ""
     }
     
-    @MainActor func searchKWDSubmitted(keyword: String) {
+    func searchKWDSubmitted(keyword: String)  {
         self.newsList = []
         self.selectedKeyword = keyword
         fetchNews()
         
     }
     
-    
-    @MainActor
-    func fetchNews() {
-        
-        Task {
-            newsList += await NewsSerchService().searchNews(
+    func fetchNews()  {
+        Task{
+            let resultList = await NewsSerchService().searchNews(
                 requestModel: NewsRequestModel(
-                    start:start ,
+                    start: self.newsList.count + 1 ,
                     display: pageSize,
                     query: self.selectedKeyword
                 )
+                
             )
-            print(newsList)
-        }
-    }
-    
-    @MainActor func loadNextPage(_ current : News) {
-        if current == newsList[newsList.count - 3]{
-            currentPage += 1
-            fetchNews()
+            await MainActor.run {
+                self.newsList += resultList
+            }
         }
         
+        
+    }
+    
+    func loadNextPage()  {
+        currentPage += 1
+        fetchNews()
     }
     
 }

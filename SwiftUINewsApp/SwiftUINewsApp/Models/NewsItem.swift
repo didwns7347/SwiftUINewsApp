@@ -10,14 +10,47 @@ import Foundation
 struct NewsResponseModel: Decodable {
     var items: [News] = []
 }
-
-struct News: Decodable {
- 
+struct NewsItem : Identifiable {
+    let id: UUID
+    let title : String
+    let description: String
+    let link: String
+    let pubDate : String
+    init(id: UUID = UUID(), news: News) {
+        self.id = id
+        self.title = news.realTitle
+        self.description = news.realDescription
+        self.link = news.link
+        self.pubDate = news.dateString
+    }
+}
+struct News: Codable {
     let title: String
     let link: String
-    let originallink :String
+    let originallink :String?
     let description: String
     let pubDate: String
+    
+    var realTitle : String {
+        title.convertHTMLToString()
+    }
+    var realDescription : String {
+        description.convertHTMLToString()
+    }
+    
+    init(
+        title: String,
+        link: String,
+        originallink: String?,
+        description: String,
+        pubDate: String
+    ) {
+        self.title = title
+        self.link = link
+        self.originallink = originallink
+        self.description = description
+        self.pubDate = pubDate
+    }
     
     var dateString : String {
         let dateFormatter = DateFormatter()
@@ -113,13 +146,9 @@ extension News {
             let dcd = try JSONDecoder().decode(NewsResponseModel.self, from: samples.data(using: .utf8)!)
             tmp = dcd.items
         } catch {
-            fatalError("\(error.localizedDescription)")
+            fatalError("\(error)//\(error.localizedDescription)")
         }
         return tmp
     }
 }
-extension News : Equatable {
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.link == rhs.link
-    }
-}
+
